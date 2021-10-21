@@ -38,6 +38,12 @@ def cli(repositories):
     """Main method."""
     check_gh_installed()
 
-    owner, name = parse_repository(repositories[0])
-    repodata = RepoData(name, owner)
-    click.echo(str(repodata))
+    file_contents = "Name,Prefixed Commits,Total Commits,SLOC,Cyclometric Complexity,Function Count\n"
+
+    for repository in repositories:
+        owner, name = parse_repository(repository)
+        repodata = RepoData(name, owner)
+        file_contents += str(repodata) + "\n"
+
+    with open("results.csv", "w+", encoding="utf-8") as file_obj:
+        file_obj.write(file_contents)
