@@ -5,15 +5,15 @@ Setup module to make CLI extensible.
 from setuptools import setup
 
 setup(
-    name='cpa',
+    name='commit-prefix-analysis',
     version='1.0.0',
-    py_modules=['cpa.py'],
+    py_modules=['commit-prefix-analysis.py'],
     install_requires=[
         'Click',
     ],
     entry_points={
         'console_scripts': [
-            'cpa = cpa:cli',
+            'commit-prefix-analysis = commit-prefix-analysis:cli',
         ],
     },
 )
