@@ -1,6 +1,11 @@
+"""
+Implement cpa command.
+"""
+
 import subprocess
 import re
 import click
+
 
 def check_gh_installed():
     """
@@ -8,10 +13,12 @@ def check_gh_installed():
     """
     bytes_result = subprocess.check_output("gh --version")
     result = bytes_result.decode("utf-8")
-    prog = re.compile("gh version 2.\d.\d")
+    prog = re.compile(r"gh version 2.\d.\d")
 
     if not prog.match(result):
-        raise RuntimeError(f"could not find gh, got ${result} when checking the version")
+        raise RuntimeError(
+            f"could not find gh, got ${result} when checking the version"
+        )
 
 
 @click.command()
@@ -20,10 +27,5 @@ def main(repositories):
     """Main method."""
     try:
         check_gh_installed()
-    except:
+    except RuntimeError:
         print("uh oh")
-
-
-
-if __name__ == "__main__":
-    main()
