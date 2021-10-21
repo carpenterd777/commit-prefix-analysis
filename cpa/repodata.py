@@ -78,9 +78,9 @@ class RepoData:
         Computes the repo complexity and sets the
         sloc, cyclo, and function_count fields.
         """
-        result = subprocess.check_output(f"lizard {self.name}", shell=True).decode(
-            "utf-8"
-        )
+        result = subprocess.run(
+            f"lizard {self.name}", shell=True, stdout=subprocess.PIPE
+        ).stdout.decode("utf-8")
         lines = result.splitlines()
         total_line = lines[len(lines) - 1]
         totals = total_line.split()
