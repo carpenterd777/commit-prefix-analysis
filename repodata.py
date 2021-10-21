@@ -25,7 +25,7 @@ class RepoData:
         self.num_prefixed = None  # number of prefixed git commit messages
         self.num_messages = None  # total
         self.sloc = None  # source lines of code
-        self.cc = None  # cyclometric complexity
+        self.cyclo = None  # cyclometric complexity
         self.func_count = None  # number of function count
 
         self._complete_initialization()
