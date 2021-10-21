@@ -4,6 +4,8 @@ Implements the RepoData type.
 
 import subprocess
 import re
+import shutil
+import lizard
 
 
 def _call(command) -> int:
@@ -64,11 +66,29 @@ class RepoData:
 
     def _complete_initialization(self):
         """
-        Set all fields based on data obtained from
-        other sources.
+        Set all fields.
         """
         self.download()
         self.count_messages()
+        self.compute_repo_complexity()
+        self.cleanup()
+
+    def compute_repo_complexity(self):
+        """
+        Computes the repo complexity and sets the
+        sloc, cyclo, and function_count fields.
+        """
+        info = lizard.analyze(f"./{self.name}")
+        self.sloc = info.__dict__["nloc"]
+        self.cyclo = info.__dict__["cyclomatic_complexity"]
+        self.func_count = len(info.__dict__["function_list"])
+
+    def cleanup(self):
+        """
+        Delete the repo folder that was created.
+        """
+        shutil.rmtree(f"./${self.name}")
+
 
     def _is_prefixed(self, string) -> bool:
         """
