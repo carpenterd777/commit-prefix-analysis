@@ -36,7 +36,7 @@ class RepoData:
     def __str__(self):
         return dedent(
             f"""
-        {self.owner}/{self.name} {self.num_prefixed} {self.num_messages} {self.sloc} {self.cyclo} {self.func_count}
+        {self.owner}/{self.name},{self.num_prefixed},{self.num_messages},{self.sloc},{self.cyclo},{self.func_count}
         """
         )
 
@@ -67,7 +67,6 @@ class RepoData:
 
         # remove commit hashes
         message_list = [self._remove_commit_hash(message) for message in message_list]
-        print(message_list)
 
         # count messages with prefixes
         self.num_prefixed = 0
