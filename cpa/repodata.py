@@ -34,11 +34,7 @@ class RepoData:
         self._complete_initialization()
 
     def __str__(self):
-        return dedent(
-            f"""
-        {self.owner}/{self.name},{self.num_prefixed},{self.num_messages},{self.sloc},{self.cyclo},{self.func_count}
-        """
-        )
+        return f"{self.owner}/{self.name},{self.num_prefixed},{self.num_messages},{self.sloc},{self.cyclo},{self.func_count}"
 
     def download(self):
         """
