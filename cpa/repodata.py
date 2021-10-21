@@ -5,15 +5,16 @@ Implements the RepoData type.
 import subprocess
 import re
 import shutil
-import lizard
+import os
+from textwrap import dedent
 
 
-def _call(command) -> int:
+def _call(command) -> str:
     """
     Call the passed command and silence the output.
     """
-    command = f"{command} > /dev/null"
-    return subprocess.call(command, shell=True)
+    command = f"{command}"
+    return subprocess.check_output(command, shell=True)
 
 
 class RepoData:
@@ -32,6 +33,13 @@ class RepoData:
 
         self._complete_initialization()
 
+    def __str__(self):
+        return dedent(
+            f"""
+        {self.owner}/{self.name} {self.num_prefixed} {self.num_messages} {self.sloc} {self.cyclo} {self.func_count}
+        """
+        )
+
     def download(self):
         """
         Download repository from Github using the Github command line.
@@ -45,8 +53,10 @@ class RepoData:
         """
 
         # Intialize
-        _call(f"cd ./${self.name}")
-        result = subprocess.check_output("git log --pretty=oneline").decode("utf-8")
+        os.chdir(f"./{self.name}")
+        result = subprocess.check_output("git log --pretty=oneline", shell=True).decode(
+            "utf-8"
+        )
         message_list = result.splitlines()
         message_list = [
             message for message in message_list if message != ""
@@ -55,6 +65,10 @@ class RepoData:
         # count each message
         self.num_messages = len(message_list)
 
+        # remove commit hashes
+        message_list = [self._remove_commit_hash(message) for message in message_list]
+        print(message_list)
+
         # count messages with prefixes
         self.num_prefixed = 0
         for message in message_list:
@@ -62,7 +76,28 @@ class RepoData:
                 self.num_prefixed += 1
 
         # cleanup
-        _call("cd ..")
+        os.chdir("..")
+
+    def compute_repo_complexity(self):
+        """
+        Computes the repo complexity and sets the
+        sloc, cyclo, and function_count fields.
+        """
+        result = subprocess.check_output(f"lizard {self.name}", shell=True).decode(
+            "utf-8"
+        )
+        lines = result.splitlines()
+        total_line = lines[len(lines) - 1]
+        totals = total_line.split()
+        self.sloc = totals[0]
+        self.cyclo = totals[2]
+        self.func_count = totals[4]
+
+    def cleanup(self):
+        """
+        Delete the repo folder that was created.
+        """
+        shutil.rmtree(f"./{self.name}")
 
     def _complete_initialization(self):
         """
@@ -72,23 +107,6 @@ class RepoData:
         self.count_messages()
         self.compute_repo_complexity()
         self.cleanup()
-
-    def compute_repo_complexity(self):
-        """
-        Computes the repo complexity and sets the
-        sloc, cyclo, and function_count fields.
-        """
-        info = lizard.analyze(f"./{self.name}")
-        self.sloc = info.__dict__["nloc"]
-        self.cyclo = info.__dict__["cyclomatic_complexity"]
-        self.func_count = len(info.__dict__["function_list"])
-
-    def cleanup(self):
-        """
-        Delete the repo folder that was created.
-        """
-        shutil.rmtree(f"./${self.name}")
-
 
     def _is_prefixed(self, string) -> bool:
         """
@@ -107,3 +125,9 @@ class RepoData:
         """
         prog = re.compile(r"^[\S#]{1,8}:")
         return prog.match(string) is not None
+
+    def _remove_commit_hash(self, message: str) -> str:
+        """
+        Removes the commit hash from a commit message string.
+        """
+        return " ".join(message.split()[1:])

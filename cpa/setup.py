@@ -5,15 +5,15 @@ Setup module to make CLI extensible.
 from setuptools import setup
 
 setup(
-    name='cpa',
-    version='1.0.0',
-    py_modules=['cpa'],
+    name="cpa",
+    version="1.0.0",
+    py_modules=["cpa"],
     install_requires=[
-        'Click',
+        "Click",
     ],
     entry_points={
-        'console_scripts': [
-            'cpa = cpa:cli',
+        "console_scripts": [
+            "cpa = cpa:cli",
         ],
     },
 )
